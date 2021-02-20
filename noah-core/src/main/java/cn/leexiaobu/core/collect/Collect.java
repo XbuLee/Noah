@@ -6,4 +6,5 @@ package cn.leexiaobu.core.collect;
  */
 public interface Collect {
 
+  public byte[] transform(ClassLoader loader, String className);
 }

@@ -3,6 +3,7 @@ package cn.leexiaobu.core.context;
 import cn.leexiaobu.core.collect.AbstractByteTransformCollect;
 import cn.leexiaobu.core.collect.Collect;
 import cn.leexiaobu.core.collect.SimpleCollect;
+import cn.leexiaobu.core.collect.ThreadExecutorCollect;
 import cn.leexiaobu.core.filter.DefaultFilter;
 import cn.leexiaobu.core.filter.Filter;
 import cn.leexiaobu.core.output.OutPut;
@@ -56,11 +57,12 @@ public class ApmContext implements Context {
     this.properties = properties;
     this.instrumentation = instrumentation;
     // 注册采集器 IOC
+    collects.add(new ThreadExecutorCollect(this, instrumentation));
     collects.add(new SimpleCollect(this, instrumentation));
     //filter 注册
-    filter = new DefaultFilter();
+//    filter = new DefaultFilter();
 //    //输出器注册
-    output = new SimpleOutput(properties);
+//    output = new SimpleOutput(properties);
   }
 
   public void setProperties(Properties properties) {

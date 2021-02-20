@@ -13,6 +13,7 @@
     <version>1.5.14.RELEASE</version>
     <relativePath/> <!-- lookup parent from repository -->
   </parent>
+  <packaging>war</packaging>
   <modelVersion>4.0.0</modelVersion>
 
   <artifactId>noah-client</artifactId>
@@ -37,5 +38,27 @@
       <artifactId>javassist</artifactId>
       <version>3.24.0-GA</version>
     </dependency>
+    <dependency>
+      <groupId>org.springframework.boot</groupId>
+      <artifactId>spring-boot-starter-tomcat</artifactId>
+      <scope>provided</scope>
+    </dependency>
+    <dependency>
+      <groupId>org.apache.tomcat</groupId>
+      <artifactId>tomcat-servlet-api</artifactId>
+      <version>8.0.36</version>
+      <scope>provided</scope>
+    </dependency>
   </dependencies>
+
+  <build>
+    <finalName>noah</finalName>
+    <plugins>
+      <plugin>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-maven-plugin</artifactId>
+      </plugin>
+    </plugins>
+  </build>
+
 </project>

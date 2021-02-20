@@ -149,6 +149,8 @@ public class SnowflakeIdWorker {
     return idWorker.nextId();
   }
 
+
+
   public static void main(String[] args) throws InterruptedException {
     SnowflakeIdWorker idWorker = new SnowflakeIdWorker(0, 0);
     for (int i = 0; i < 10; i++) {
