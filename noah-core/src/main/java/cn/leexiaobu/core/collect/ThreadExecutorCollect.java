@@ -21,6 +21,7 @@ public class ThreadExecutorCollect extends AbstractByteTransformCollect implemen
   private ApmContext context;
 
   public ThreadExecutorCollect(ApmContext context, Instrumentation instrumentation) {
+
     super(instrumentation);
     this.context = context;
   }

@@ -1,6 +1,5 @@
 package cn.leexiaobu.core.context;
 
-import cn.leexiaobu.core.collect.AbstractByteTransformCollect;
 import cn.leexiaobu.core.collect.Collect;
 import cn.leexiaobu.core.collect.SimpleCollect;
 import cn.leexiaobu.core.collect.ThreadExecutorCollect;
@@ -8,19 +7,11 @@ import cn.leexiaobu.core.filter.DefaultFilter;
 import cn.leexiaobu.core.filter.Filter;
 import cn.leexiaobu.core.output.OutPut;
 import cn.leexiaobu.core.output.SimpleOutput;
-import java.lang.instrument.ClassFileTransformer;
-import java.lang.instrument.IllegalClassFormatException;
+import com.alibaba.fastjson.JSON;
 import java.lang.instrument.Instrumentation;
-import java.security.ProtectionDomain;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Properties;
-import java.util.logging.Level;
-import javassist.ClassPool;
-import javassist.CtClass;
-import javassist.CtMethod;
-import javassist.CtNewMethod;
-import javassist.LoaderClassPath;
 
 /**
  * @author Leexiaobu
@@ -56,13 +47,20 @@ public class ApmContext implements Context {
     }
     this.properties = properties;
     this.instrumentation = instrumentation;
+
     // 注册采集器 IOC
     collects.add(new ThreadExecutorCollect(this, instrumentation));
     collects.add(new SimpleCollect(this, instrumentation));
     //filter 注册
-//    filter = new DefaultFilter();
+    filter = new DefaultFilter();
 //    //输出器注册
-//    output = new SimpleOutput(properties);
+    output = new SimpleOutput(properties);
+  }
+
+  public void submitCollectResult(Object value) {
+    // TODO 基于线程后台执行
+//    value = filter.doFilter(value);
+    output.out(JSON.toJSONString(value));
   }
 
   public void setProperties(Properties properties) {

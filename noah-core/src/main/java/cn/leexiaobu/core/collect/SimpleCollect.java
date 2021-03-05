@@ -4,10 +4,10 @@ import cn.leexiaobu.core.TraceNode;
 import cn.leexiaobu.core.common.CommonUtils;
 import cn.leexiaobu.core.common.SnowflakeIdWorker;
 import cn.leexiaobu.core.context.ApmContext;
-import cn.leexiaobu.core.logger.Logger;
-import cn.leexiaobu.core.model.SimpleStatistics;
+import cn.leexiaobu.core.model.DefaultStatistics;
 import cn.leexiaobu.core.threadpoolexecutor.TransmittableThreadLocal;
 import java.lang.instrument.Instrumentation;
+import javassist.ClassClassPath;
 import javassist.ClassPool;
 import javassist.CtClass;
 import javassist.CtMethod;
@@ -20,7 +20,7 @@ import javassist.NotFoundException;
  */
 public class SimpleCollect extends AbstractByteTransformCollect implements Collect {
 
-  //  public static InheritableThreadLocal<SimpleStatistics> simpleThreadLocal = new InheritableThreadLocal<>();
+  //  public static InheritableThreadLocal<DefaultStatistics> simpleThreadLocal = new InheritableThreadLocal<>();
   public static TransmittableThreadLocal<TraceNode> traceNodeInheritableThreadLocal = new TransmittableThreadLocal<>();
   public static SimpleCollect INSTANCE;
   private static final String beginSrc;
@@ -32,7 +32,7 @@ public class SimpleCollect extends AbstractByteTransformCollect implements Colle
     builder.append("cn.leexiaobu.core.collect.SimpleCollect instance= ");
     builder.append("cn.leexiaobu.core.collect.SimpleCollect.INSTANCE;\r\n");
     builder.append(
-        "cn.leexiaobu.core.model.SimpleStatistics bean =instance.begin(\"%s\",\"%s\");");
+        "cn.leexiaobu.core.model.DefaultStatistics bean =instance.begin(\"%s\",\"%s\");");
     beginSrc = builder.toString();
     builder = new StringBuilder();
     builder.append("instance.end(bean);");
@@ -43,7 +43,7 @@ public class SimpleCollect extends AbstractByteTransformCollect implements Colle
 
   }
 
-  private ApmContext context;
+  private  ApmContext context;
 
   public SimpleCollect(ApmContext context, Instrumentation instrumentation) {
     super(instrumentation);
@@ -57,6 +57,7 @@ public class SimpleCollect extends AbstractByteTransformCollect implements Colle
     if (!className.startsWith("cn.leexiaobu.core.client")) {
       return null;
     }
+    System.out.println(className);
     byte[] bytes = buildClass(loader, className);
     return bytes;
   }
@@ -64,6 +65,7 @@ public class SimpleCollect extends AbstractByteTransformCollect implements Colle
 
   private byte[] buildClass(ClassLoader loader, String className) {
     ClassPool pool = ClassPool.getDefault();
+    pool.insertClassPath(new ClassClassPath(this.getClass()));
 //    pool.insertClassPath(new LoaderClassPath(loader));
     try {
       CtClass ctClass = pool.get(className);
@@ -71,9 +73,9 @@ public class SimpleCollect extends AbstractByteTransformCollect implements Colle
       AgentByteBuild agentByteBuild = new AgentByteBuild(className, loader, ctClass);
       for (CtMethod m : methods) {
         // 屏蔽非公共方法
-//        if (!Modifier.isPublic(m.getModifiers())) {
-//          continue;
-//        }
+        if (!Modifier.isPublic(m.getModifiers())) {
+          continue;
+        }
         // 屏蔽静态方法
         if (Modifier.isStatic(m.getModifiers())) {
           continue;
@@ -99,14 +101,13 @@ public class SimpleCollect extends AbstractByteTransformCollect implements Colle
   }
 
 
-  public SimpleStatistics begin(String className, String methodName) {
-//    SimpleStatistics bean = simpleThreadLocal.get();
-    SimpleStatistics bean = new SimpleStatistics();
-    bean.setBegin(System.currentTimeMillis());
-    bean.setServiceName(className);
-    bean.setMethodName(methodName);
-    bean.setSimpleName(className.substring(className.lastIndexOf(".")));
-    bean.setServiceName("simple");
+  public DefaultStatistics begin(String className, String methodName) {
+//    SimpleStatistics span = simpleThreadLocal.get();
+    DefaultStatistics span = new DefaultStatistics();
+    span.setBegin(System.currentTimeMillis());
+    span.setServiceName(className);
+    span.setMethodName(methodName);
+    span.setSimpleName(className.substring(className.lastIndexOf(".")+1));
     if (traceNodeInheritableThreadLocal.get() == null
         || traceNodeInheritableThreadLocal.get().getTraceIdThreadLocal() == null) {
       String traceId = String.valueOf(SnowflakeIdWorker.getSnowflakeId());
@@ -114,7 +115,7 @@ public class SimpleCollect extends AbstractByteTransformCollect implements Colle
       traceNode.setTraceIdThreadLocal(traceId);
       traceNodeInheritableThreadLocal.set(traceNode);
     }
-    bean.setTraceId(traceNodeInheritableThreadLocal.get().getTraceIdThreadLocal());
+    span.setTraceId(traceNodeInheritableThreadLocal.get().getTraceIdThreadLocal());
     if (traceNodeInheritableThreadLocal.get().getSpanIdThreadLocal() == null) {
       String spanId = CommonUtils.getZero();
       traceNodeInheritableThreadLocal.get().setSpanIdThreadLocal(spanId);
@@ -122,23 +123,29 @@ public class SimpleCollect extends AbstractByteTransformCollect implements Colle
       traceNodeInheritableThreadLocal.get().setSpanIdThreadLocal(
           CommonUtils.getNextSpanId(traceNodeInheritableThreadLocal.get().getSpanIdThreadLocal()));
     }
-    bean.setSpanId(traceNodeInheritableThreadLocal.get().getSpanIdThreadLocal());
-    Logger.logger.info("【start】" + bean.toString());
-    return bean;
+    span.setSpanId(traceNodeInheritableThreadLocal.get().getSpanIdThreadLocal());
+    span.setModelType("begin");
+//    Logger.logger.info("【start】" + span.toString());
+    context.submitCollectResult(span);
+    return span;
   }
 
-  public void error(SimpleStatistics bean, Throwable e) {
-//    SimpleStatistics bean = simpleThreadLocal.get();
-    bean.setErrorType(e.getClass().getSimpleName());
-    bean.setErrorMsg(e.getMessage());
-    Logger.logger.error(bean.toString());
+  public void error(DefaultStatistics span, Throwable e) {
+//    SimpleStatistics span = simpleThreadLocal.get();
+    span.setErrorType(e.getClass().getSimpleName());
+    span.setErrorMsg(e.getMessage());
+    span.setModelType("error");
+//    Logger.logger.error(span.toString());
+    context.submitCollectResult(span);
   }
 
-  public void end(SimpleStatistics bean) {
-//    SimpleStatistics bean = simpleThreadLocal.get();
-    bean.setEnd(System.currentTimeMillis());
-    bean.setUseTime(bean.end - bean.begin);
-    Logger.logger.info("【end】" + bean.toString());
+  public void end(DefaultStatistics span) {
+//    SimpleStatistics span = simpleThreadLocal.get();
+    span.setEnd(System.currentTimeMillis());
+    span.setUseTime(span.end - span.begin);
+    span.setModelType("end");
+//    Logger.logger.info("【end】" + span.toString());
+    context.submitCollectResult(span);
   }
 
 

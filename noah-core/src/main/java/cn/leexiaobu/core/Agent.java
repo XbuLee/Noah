@@ -4,6 +4,8 @@ import cn.leexiaobu.core.context.ApmContext;
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
 import java.lang.instrument.Instrumentation;
+import java.lang.reflect.InvocationTargetException;
+import java.lang.reflect.Method;
 import java.util.Properties;
 
 /**
@@ -16,7 +18,7 @@ public class Agent {
     System.out.println("进入Agent");
     Properties properties = new Properties();
     // 装载配置文件
-    if (args != null && !args.trim().equals("")) {
+    if (args != null && !"".equals(args.trim())) {
       try {
         properties.load(new ByteArrayInputStream(
             args.replaceAll(",", "\n").getBytes()));

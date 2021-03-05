@@ -9,6 +9,7 @@ import org.springframework.boot.web.support.SpringBootServletInitializer;
  * @author Leexiaobu
  * @date 2021-01-21 17:19
  */
+
 @SpringBootApplication
 public class ApplicationContext extends SpringBootServletInitializer {
 
@@ -16,10 +17,11 @@ public class ApplicationContext extends SpringBootServletInitializer {
     System.out.println("Noah=====");
     SpringApplication.run(ApplicationContext.class, args);
   }
+
   @Override
-    protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
-        return application.sources(ApplicationContext.class);
-    }
+  protected SpringApplicationBuilder configure(SpringApplicationBuilder application) {
+    return application.sources(ApplicationContext.class);
+  }
 
 }
 

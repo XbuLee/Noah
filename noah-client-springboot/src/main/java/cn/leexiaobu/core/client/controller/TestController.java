@@ -1,5 +1,6 @@
 package cn.leexiaobu.core.client.controller;
 
+import com.alibaba.fastjson.JSON;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RestController;
 
@@ -19,35 +20,14 @@ public class TestController {
   @GetMapping("/hello2")
   public String hello2(String name) {
     ClassLoader classLoader = this.getClass().getClassLoader();
-    return ("hello2 " + name);
+    return JSON.toJSONString(classLoader);
   }
 
-  @GetMapping("/traceId")
-  public void testTraceId() {
-    method1();
-  }
-  private void method1() {
-    method2();
+  @GetMapping("/hello3")
+  public int testTraceId(int a) {
+    System.out.println("error");
+    return 100/a;
   }
 
-  private void method2() {
-    method3();
-  }
-
-  private void method3() {
-    method4();
-  }
-
-  private void method4() {
-    method5();
-  }
-
-  private void method5() {
-    method6();
-  }
-
-  private void method6() {
-    System.out.println("end");
-  }
 
 }

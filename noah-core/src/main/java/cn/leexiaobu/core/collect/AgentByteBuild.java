@@ -35,7 +35,6 @@ public class AgentByteBuild {
         CtMethod agentMethod = CtNewMethod.copy(ctmethod, methodName, ctclass, null);
         agentMethod.setName(methodName + "$agent");
         ctclass.addMethod(agentMethod);
-
         // 原方法重置为代理执行
         ctmethod.setBody(srcBuild.buildSrc(ctmethod));
     }

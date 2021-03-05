@@ -61,22 +61,20 @@ public class BaseStatistics implements java.io.Serializable {
     this.traceId = traceId;
   }
 
-  @Override
-  public String toString() {
-    return "BaseStatistics{" +
-        "traceId='" + traceId + '\'' +
-        ", spanId='" + spanId + '\'' +
-        ", modelType='" + modelType + '\'' +
-        ", recordTime=" + recordTime +
-        ", hostIp='" + hostIp + '\'' +
-        ", hostName='" + hostName + '\'' +
-        '}';
-  }
+//  @Override
+//  public String toString() {
+//    return "BaseStatistics{" +
+//        "traceId='" + traceId + '\'' +
+//        ", spanId='" + spanId + '\'' +
+//        ", modelType='" + modelType + '\'' +
+//        ", recordTime=" + recordTime +
+//        ", hostIp='" + hostIp + '\'' +
+//        ", hostName='" + hostName + '\'' +
+//        '}';
+//  }
 
   public BaseStatistics() {
-//    this.setTraceId(String.valueOf(cn.leexiaobu.core.common.SnowflakeIdWorker.getSnowflakeId()));
     this.setRecordTime(System.currentTimeMillis());
-//    this.setSpanId(String.valueOf(CommonUtils.getZero()));
     try {
       this.setHostIp(InetAddress.getLocalHost().getHostAddress());
       this.setHostName(InetAddress.getLocalHost().getHostName());

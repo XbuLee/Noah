@@ -1,7 +1,7 @@
 package cn.leexiaobu.core.model;
 
 
-public class SimpleStatistics extends BaseStatistics implements java.io.Serializable {
+public class DefaultStatistics extends BaseStatistics implements java.io.Serializable {
 
   public Long begin;
   public Long end;
@@ -49,19 +49,6 @@ public class SimpleStatistics extends BaseStatistics implements java.io.Serializ
     return errorType;
   }
 
-  @Override
-  public String toString() {
-    return super.toString() + "SimpleStatistics{" +
-        "begin=" + begin +
-        ", end=" + end +
-        ", useTime=" + useTime +
-        ", errorMsg='" + errorMsg + '\'' +
-        ", errorType='" + errorType + '\'' +
-        ", serviceName='" + serviceName + '\'' +
-        ", simpleName='" + simpleName + '\'' +
-        ", methodName='" + methodName + '\'' +
-        '}';
-  }
 
   public void setErrorType(String errorType) {
     this.errorType = errorType;
@@ -91,7 +78,7 @@ public class SimpleStatistics extends BaseStatistics implements java.io.Serializ
     this.methodName = methodName;
   }
 
-  public SimpleStatistics() {
+  public DefaultStatistics() {
     super();
     this.setBegin(System.currentTimeMillis());
   }
