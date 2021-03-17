@@ -52,7 +52,9 @@ public class RPCCollect extends AbstractByteTransformCollect implements Collect 
     CtClass ctClass = pool.get(ABSTRACTINVOKER);
     CtMethod oldMethod = ctClass.getDeclaredMethod(INVOKE);
     oldMethod.insertBefore(
-        " org.apache.dubbo.rpc.RpcContext.getContext().getObjectAttachments().put(\"noah_trace_id\",   cn.lwjzt.core.collect.SimpleCollect.traceNodeInheritableThreadLocal.get());");
+        " ;"
+            + "org.apache.dubbo.rpc.RpcContext.getContext().getObjectAttachments().put(\"noah_trace_id\", "
+            + " cn.lwjzt.core.common.CommonUtils.getNextRpcTraceNode(cn.lwjzt.core.collect.SimpleCollect.traceNodeInheritableThreadLocal.get()));");
     return ctClass.toBytecode();
   }
 

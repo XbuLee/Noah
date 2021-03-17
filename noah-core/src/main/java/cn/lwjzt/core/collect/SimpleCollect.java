@@ -114,21 +114,24 @@ public class SimpleCollect extends AbstractByteTransformCollect implements Colle
     span.setMethodName(methodName);
     span.setSimpleName(className.substring(className.lastIndexOf(".") + 1));
     if (traceNodeInheritableThreadLocal.get() == null
-        || traceNodeInheritableThreadLocal.get().getTraceIdThreadLocal() == null) {
+        || traceNodeInheritableThreadLocal.get().getTraceId() == null) {
       String traceId = String.valueOf(SnowflakeIdWorker.getSnowflakeId());
       TraceNode traceNode = new TraceNode();
-      traceNode.setTraceIdThreadLocal(traceId);
+      traceNode.setTraceId(traceId);
       traceNodeInheritableThreadLocal.set(traceNode);
     }
-    span.setTraceId(traceNodeInheritableThreadLocal.get().getTraceIdThreadLocal());
-    if (traceNodeInheritableThreadLocal.get().getSpanIdThreadLocal() == null) {
-      String spanId = CommonUtils.getZero();
-      traceNodeInheritableThreadLocal.get().setSpanIdThreadLocal(spanId);
+    span.setTraceId(traceNodeInheritableThreadLocal.get().getTraceId());
+    if (traceNodeInheritableThreadLocal.get().getSpanId() == null) {
+      String spanId = CommonUtils.getFirstSpanId();
+      String rpcId = CommonUtils.getFirstRpcId();
+      traceNodeInheritableThreadLocal.get().setSpanId(spanId);
+      traceNodeInheritableThreadLocal.get().setRpcId(rpcId);
     } else {
-      traceNodeInheritableThreadLocal.get().setSpanIdThreadLocal(
-          CommonUtils.getNextSpanId(traceNodeInheritableThreadLocal.get().getSpanIdThreadLocal()));
+//      traceNodeInheritableThreadLocal.get().setSpanId(
+//          CommonUtils.getNextSpanId(traceNodeInheritableThreadLocal.get().getSpanId()));
+      CommonUtils.moveNext(traceNodeInheritableThreadLocal.get());
     }
-    span.setSpanId(traceNodeInheritableThreadLocal.get().getSpanIdThreadLocal());
+    span.setSpanId(traceNodeInheritableThreadLocal.get().getSpanId());
     span.setModelType("begin");
 //    Logger.logger.info("【start】" + span.toString());
     context.submitCollectResult(span);
