@@ -7,10 +7,19 @@ public class BaseStatistics implements java.io.Serializable {
   private static final long serialVersionUID = 1L;
   private String traceId;
   private String spanId;
+  private String parentId;
   private String modelType;
   private long recordTime;
   private String hostIp;
   private String hostName;
+
+  public String getParentId() {
+    return parentId;
+  }
+
+  public void setParentId(String parentId) {
+    this.parentId = parentId;
+  }
 
   public String getSpanId() {
     return spanId;

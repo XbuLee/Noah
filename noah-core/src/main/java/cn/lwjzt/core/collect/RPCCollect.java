@@ -29,14 +29,14 @@ public class RPCCollect extends AbstractByteTransformCollect implements Collect 
     if (ABSTRACTINVOKER.equals(className)) {
       System.out.println("RPCCollect:"+className);
       try {
-        return buildInvokeClass(loader);
+        return buildServer(loader);
       } catch (Exception e) {
         e.printStackTrace();
       }
     } else if (CONTEXTFILTER.equals(className)) {
       System.out.println("RPCCollect:"+className);
       try {
-        return buildInvocationClass(loader);
+        return buildClient(loader);
 //        return null;
       } catch (Exception e) {
         e.printStackTrace();
@@ -46,22 +46,20 @@ public class RPCCollect extends AbstractByteTransformCollect implements Collect 
     return null;
   }
 
-  public byte[] buildInvokeClass(ClassLoader loader) throws Exception {
+  public byte[] buildServer(ClassLoader loader) throws Exception {
     ClassPool pool = new ClassPool();
     pool.insertClassPath(new LoaderClassPath(loader));
     CtClass ctClass = pool.get(ABSTRACTINVOKER);
     CtMethod oldMethod = ctClass.getDeclaredMethod(INVOKE);
     oldMethod.insertBefore(
-        " ;"
-            + "org.apache.dubbo.rpc.RpcContext.getContext().getObjectAttachments().put(\"noah_trace_id\", "
-            + " cn.lwjzt.core.common.CommonUtils.getNextRpcTraceNode(cn.lwjzt.core.collect.SimpleCollect.traceNodeInheritableThreadLocal.get()));");
+         "org.apache.dubbo.rpc.RpcContext.getContext().getObjectAttachments().put(\"noah_trace_id\", "
+            + " cn.lwjzt.core.common.CommonUtils.getNextRpcTraceNode((cn.lwjzt.core.TraceNode)cn.lwjzt.core.collect.SimpleCollect.traceNodeInheritableThreadLocal.get()));");
     return ctClass.toBytecode();
   }
 
-  public byte[] buildInvocationClass(ClassLoader loader) throws Exception {
+  public byte[] buildClient(ClassLoader loader) throws Exception {
     ClassPool pool = new ClassPool();
     pool.insertClassPath(new LoaderClassPath(loader));
-
     CtClass ctClass = pool.get(CONTEXTFILTER);
     CtMethod oldMethod = ctClass.getDeclaredMethod(GETOBJECTATTACHMENTS);
 //    if(invocation.getObjectAttachments()!=null&&invocation.getObjectAttachments().get("noah_trace_id")!=null){
@@ -76,7 +74,7 @@ public class RPCCollect extends AbstractByteTransformCollect implements Collect 
         oldMethod.insertBefore("    if(invocation.getObjectAttachments()!=null&&invocation.getObjectAttachments().get(\"noah_trace_id\")!=null){\n"
             + "      cn.lwjzt.core.collect.SimpleCollect.traceNodeInheritableThreadLocal.set((cn.lwjzt.core.TraceNode)invocation.getObjectAttachments().get(\"noah_trace_id\"));\n"
             + "    }\n"
-            + "       System.out.println(cn.lwjzt.core.common.JsonUtil.toJson(cn.lwjzt.core.collect.SimpleCollect.traceNodeInheritableThreadLocal.get()));\n");
+            + "       System.out.println(\"拿到的TraceNode:\"+cn.lwjzt.core.common.JsonUtil.toJson(cn.lwjzt.core.collect.SimpleCollect.traceNodeInheritableThreadLocal.get()));\n");
     return ctClass.toBytecode();
   }
 }

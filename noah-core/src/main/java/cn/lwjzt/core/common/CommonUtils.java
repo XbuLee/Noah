@@ -1,6 +1,7 @@
 package cn.lwjzt.core.common;
 
 import cn.lwjzt.core.TraceNode;
+import cn.lwjzt.core.collect.SimpleCollect;
 
 /**
  * @author Leexiaobu
@@ -13,6 +14,9 @@ public class CommonUtils {
   }
   public static String getFirstRpcId() {
     return "0";
+  }
+  public static String getFirstParentId() {
+    return "-1";
   }
   public static String getNextSpanId(String spanId) {
     int i = spanId.lastIndexOf(".");
@@ -30,6 +34,7 @@ public class CommonUtils {
     String substring = spanId.substring(0, i);
     String nextSpanId = getNextSpanId(substring) + ".0";
     traceNode.setSpanId(nextSpanId);
+    traceNode.setParentId(spanId);
     traceNode.setRpcId("0");
     return traceNode;
   }
@@ -41,7 +46,9 @@ public class CommonUtils {
     TraceNode newNode = new TraceNode();
     newNode.setTraceId(traceNode.getTraceId());
     newNode.setSpanId(spanId);
+    newNode.setParentId(traceNode.getSpanId());
     newNode.setRpcId("0");
+    JsonUtil.toJson(newNode);
     return newNode;
   }
 
@@ -68,6 +75,8 @@ public class CommonUtils {
     TraceNode result = moveNext(nextRpcTraceNode);
     System.out.println(JsonUtil.toJson(result));
     System.out.println("=====");
+    TraceNode nextRpcTraceNode1 = CommonUtils
+        .getNextRpcTraceNode(SimpleCollect.traceNodeInheritableThreadLocal.get());
     return result;
   }
 }

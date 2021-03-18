@@ -62,8 +62,6 @@ public class SimpleCollect extends AbstractByteTransformCollect implements Colle
     byte[] bytes = buildClass(loader, className);
     return bytes;
   }
-
-
   private byte[] buildClass(ClassLoader loader, String className) {
     ClassPool pool = ClassPool.getDefault();
 //    pool.insertClassPath(new ClassClassPath(this.getClass()));
@@ -104,8 +102,6 @@ public class SimpleCollect extends AbstractByteTransformCollect implements Colle
     }
     return null;
   }
-
-
   public DefaultStatistics begin(String className, String methodName) {
 //    SimpleStatistics span = simpleThreadLocal.get();
     DefaultStatistics span = new DefaultStatistics();
@@ -118,20 +114,16 @@ public class SimpleCollect extends AbstractByteTransformCollect implements Colle
       String traceId = String.valueOf(SnowflakeIdWorker.getSnowflakeId());
       TraceNode traceNode = new TraceNode();
       traceNode.setTraceId(traceId);
+      traceNode.setSpanId(CommonUtils.getFirstSpanId());
+      traceNode.setRpcId(CommonUtils.getFirstRpcId());
+      traceNode.setParentId(CommonUtils.getFirstParentId());
       traceNodeInheritableThreadLocal.set(traceNode);
-    }
-    span.setTraceId(traceNodeInheritableThreadLocal.get().getTraceId());
-    if (traceNodeInheritableThreadLocal.get().getSpanId() == null) {
-      String spanId = CommonUtils.getFirstSpanId();
-      String rpcId = CommonUtils.getFirstRpcId();
-      traceNodeInheritableThreadLocal.get().setSpanId(spanId);
-      traceNodeInheritableThreadLocal.get().setRpcId(rpcId);
-    } else {
-//      traceNodeInheritableThreadLocal.get().setSpanId(
-//          CommonUtils.getNextSpanId(traceNodeInheritableThreadLocal.get().getSpanId()));
+    }else {
       CommonUtils.moveNext(traceNodeInheritableThreadLocal.get());
     }
+    span.setTraceId(traceNodeInheritableThreadLocal.get().getTraceId());
     span.setSpanId(traceNodeInheritableThreadLocal.get().getSpanId());
+    span.setParentId(traceNodeInheritableThreadLocal.get().getParentId());
     span.setModelType("begin");
 //    Logger.logger.info("【start】" + span.toString());
     context.submitCollectResult(span);

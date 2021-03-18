@@ -12,6 +12,15 @@ public class TraceNode implements Serializable {
   String traceId;
   String spanId;
   String rpcId;
+  String parentId;
+
+  public String getParentId() {
+    return parentId;
+  }
+
+  public void setParentId(String parentId) {
+    this.parentId = parentId;
+  }
 
   public String getRpcId() {
     return rpcId;
