@@ -9,7 +9,7 @@
 
 
 # 文档
-下载最新jar包，在项目执行命令中添加-javaagent:noah.jar，目前日志存在本地文件，可以通过logstash+es+kibana查看。
+下载最新jar包，在项目执行命令中添加-javaagent:noah.jar=package=(你需要监控的包)，目前日志存在本地文件，可以通过logstash+es+kibana查看。
 # 下载
 [releases page](https://github.com/Leexiaobu/Noah/releases) 
 
